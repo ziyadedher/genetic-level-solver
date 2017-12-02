@@ -26,7 +26,7 @@ class Population:
         self.population = []
 
         for i in range(num_creatures):
-             self.population.append(Creature())
+            self.population.append(Creature())
 
     def create_new_generation(self):
         """ Creates a new generation based on favourable characteristics
@@ -48,7 +48,7 @@ class Population:
         for creature in self.population:
             avg_fitness += creature.fitness
 
-        return (avg_fitness / len(self.population))
+        return avg_fitness / len(self.population)
 
 
 class Creature:
