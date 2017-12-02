@@ -1,12 +1,34 @@
-class Population(object):
-    """A collection of Individual objects"""
-    def __init__(self, amount):
-        individuals = [] # create empty Individuals list
+import random
 
-        for individual_index in range(amount):
-            individuals[individual_index] = Individual()
+MAX_NODES = 5
+GENE_LENGTH = 64
 
-class Individual(object):
-    """An individual creature"""
+class Population:
+
+    def __init__(self, num_individuals):
+        individuals = []
+
+        for i in range(num_individuals):
+             individuals[i] = Individual()
+
+
+
+
+class Individual:
+
     def __init__(self):
-        pass
+        """Create a creature with random values"""
+        fitness = 0
+        genes = []
+
+        for i in range(GENE_LENGTH):
+            genes[i] = random.randint(0,1)
+
+    def calculate_fitness(self):
+        """create fitness function"""
+
+
+def create_new_generation():
+    """ Creates a new generation based on favourable characteristics of individuals"""
+
+
