@@ -7,11 +7,15 @@ import pygame
 
 
 # Screen constants
-SCREEN_SIZE = (1000, 500)
+SCREEN_SIZE = (900, 500)
 SCREEN_TITLE = "Genetic Level Solver"
 
 # Level constants
 TILE_SIZE = 10
+
+# Calculates how many rows and columns of tiles there will be
+NUM_COLUMNS = SCREEN_SIZE[0] // TILE_SIZE
+NUM_ROWS = SCREEN_SIZE[1] // TILE_SIZE
 
 # Color constants
 WHITE = (255, 255, 255)
@@ -72,14 +76,10 @@ class Level:
     def _generate_boxed_grid(self):
         """Generates a grid with walls only at the sides.
         """
-        # Calculates how many rows and columns of tiles there will be
-        columns = SCREEN_SIZE[0] // TILE_SIZE
-        rows = SCREEN_SIZE[1] // TILE_SIZE
-
         # Generates the grid and returns it
         grid = []
-        for x in range(columns):
-            if x == 0 or x == columns - 1:
+        for x in range(NUM_COLUMNS):
+            if x == 0 or x == NUM_COLUMNS - 1:
                 column = [1] * rows
             else:
                 column = [1] + [0] * (rows - 2) + [1]
@@ -102,6 +102,67 @@ class Level:
 
                 # Draws the rectangle
                 pygame.draw.rect(display, color, tile_rect)
+
+    def get_tile_at(self, position):
+        """Gets the tile at the given position.
+
+        Returns a -1 if the tile is a wall,
+        0 if the tile is an empty space,
+        1 if the tile is a point.
+        """
+        return self._grid[position[0]][position[1]] - 1
+
+
+class Creature:
+    """Creature in the simulation.
+
+    === Public Attributes ===
+    points:
+        number of points this creature has collected
+    """
+    # === Private Attributes ===
+    # _x:
+    #   x-coordinate of the creature
+    # _y:
+    #   y-coordinate of the creature
+
+    def __init__(self, level):
+        """Initializes the creature in the given level.
+        """
+        self.points = 0
+        self._x = NUM_COLUMNS // 2
+        self._y = NUM_ROWS // 2
+
+    def _try_move(self, displacement):
+        """Try to move a certain displacement, update accordingly.
+        """
+        move_to = (self._x + displacement[0], self._y + displacement[1])
+        status = level.get_tile_at(move_to)
+
+        if status != -1:
+            self._x = move_to[0]
+            self._y = move_to[1]
+            self.points += status
+
+    def move(self, direction):
+        """Moves the creature in the given direction (U, R, D, or L).
+        """
+        if direction == 'U':
+            self._try_move((0, -1))
+        elif direction == 'R':
+            self._try_move((1, 0))
+        elif direction == 'D':
+            self._try_move((0, 1))
+        elif direction == 'L':
+            self._try_move((-1, 0))
+
+
+def run(genomes):
+    level = Level()
+    creature = Creature(level)
+    for instruction in genome:
+        creature.move(instruction)
+    return creature.points
 
 
 if __name__ == '__main__':
