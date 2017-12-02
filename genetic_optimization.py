@@ -34,7 +34,7 @@ class Population:
         """
         new_pop = []
         sorted_pop = sorted(self.pop, key=get_fitness)
-        tournament_pop = sorted_pop[0:len(sorted_pop) * TOP_CREATURES_PERCENTAGE]
+        tournament_pop = sorted_pop[:int(len(sorted_pop) * TOP_CREATURES_PERCENTAGE)]
 
         for i in range(len(self.pop)):
             parent1 = random.choice(tournament_pop)
