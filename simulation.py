@@ -55,11 +55,19 @@ class Level:
     #       1: wall
     #       2: point
 
-    def __init__(self):
-        """Initializes this level.
+    def __init__(self, blueprint=None):
+        """Initializes this level with the given blueprint in the form of
+        a list of columns where each column is a list of integers.
+
+        - 0 represents a empty block
+        - 1 represents a wall
+        - 2 represents a point
         """
         # Generates the grid
-        self._grid = self._generate_boxed_grid()
+        if blueprint is None:
+            self._grid = self._generate_boxed_grid()
+        else:
+            self._grid = blueprint
 
     def _generate_boxed_grid(self):
         """Generates a grid with walls only at the sides.
