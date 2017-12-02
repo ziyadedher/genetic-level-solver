@@ -2,6 +2,7 @@ import random
 
 GENE_LENGTH = 25
 DIRECTIONS = ('U', 'R', 'D', 'L')
+CROSSOVER_THRESHOLD = 0.5
 
 class Population:
 
@@ -26,6 +27,14 @@ class Population:
 
         self.population = new_population
 
+    def update_fitness(self):
+        """Calculates fitness during run on the grid"""
+
+        # fitness_scores = functionfromsim(self.population)     Call this function made in simulation.py
+
+        for i in range(len(self.population)):
+            # self.population[i].fitness = fitness_scores[i]
+
 
 class Individual:
 
@@ -41,10 +50,19 @@ class Individual:
     def get_fitness(self):
         return self.fitness
 
-    def calculate_fitness(self):
-        """Calculates fitness during run on the grid"""
 
 def crossover(parent1, parent2):
+    """Returns a child created from two parents"""
+
+    child = Individual()
+
+    for i in range(len(parent1.genes)):
+        if random.random <= CROSSOVER_THRESHOLD:
+            child.genes[i] = parent1.genes[i]
+        else:
+            child.genes[i] = parent2.genes[i]
+
+    return child
 
 
 def find_fittest(population):
@@ -66,6 +84,3 @@ def find_parent(population):
         tournament_population[i] = random.choice(population)
 
     return find_fittest(tournament_population)
-
-
-
