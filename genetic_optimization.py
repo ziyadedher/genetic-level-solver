@@ -6,6 +6,7 @@ DIRECTIONS = ('U', 'R', 'D', 'L')
 class Population:
 
     def __init__(self, num_individuals):
+        """Creates  a list of individuals with randomly generated genes"""
 
         self.population = []
 
@@ -23,6 +24,7 @@ class Individual:
         for i in range(GENE_LENGTH):
             self.genes[i] = random.choice(DIRECTIONS)
 
+    # Getter
     def get_fitness(self):
         return self.fitness
 
@@ -44,7 +46,7 @@ def create_new_generation(population):
     return new_population
 
 def find_fittest(population):
-
+    """Returns the fittest individual in a population"""
     fittest = population[0]
 
     for individual in population:
@@ -54,10 +56,11 @@ def find_fittest(population):
     return fittest
 
 def find_parent(population):
+    """Returns a parent used for creating a child"""
 
     tournament_population = []
 
     for i in range(5):
-        tournament_population
+
 
 
