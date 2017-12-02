@@ -33,7 +33,7 @@ class Population:
             of creatures.
         """
         new_pop = []
-        sorted_pop = sorted(self.pop, key=get_fitness)
+        sorted_pop = reversed(sorted(self.pop, key=get_fitness))
         tournament_pop = sorted_pop[:int(len(sorted_pop) * TOP_CREATURES_PERCENTAGE)]
 
         for i in range(len(self.pop)):
