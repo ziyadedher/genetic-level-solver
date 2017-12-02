@@ -34,11 +34,11 @@ class Population:
         """
         new_pop = []
         sorted_pop = sorted(self.pop, key=get_fitness)
-        tournamet_pop = sorted_pop[0:len(sorted_pop) * TOP_CREATURES_PERCENTAGE]
+        tournament_pop = sorted_pop[0:len(sorted_pop) * TOP_CREATURES_PERCENTAGE]
 
         for i in range(len(self.pop)):
-            parent1 = random.choice(tournamet_pop)
-            parent2 = random.choice(tournamet_pop)
+            parent1 = random.choice(tournament_pop)
+            parent2 = random.choice(tournament_pop)
             new_child = crossover(parent1, parent2)
             new_pop.append(new_child)
 
