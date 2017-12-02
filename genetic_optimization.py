@@ -13,6 +13,19 @@ class Population:
         for i in range(num_individuals):
              self.population[i] = Individual()
 
+    def create_new_generation(self):
+        """ Creates a new generation based on favourable characteristics of individuals"""
+
+        new_population = []
+
+        for i in range(len(self.population)):
+            parent1 = find_parent(self.population)
+            parent2 = find_parent(self.population)
+            child = crossover(parent1, parent2)
+            new_population[i] = child
+
+        self.population = new_population
+
 
 class Individual:
 
@@ -31,19 +44,8 @@ class Individual:
     def calculate_fitness(self):
         """Calculates fitness during run on the grid"""
 
+def crossover(parent1, parent2):
 
-def create_new_generation(population):
-    """ Creates a new generation based on favourable characteristics of individuals"""
-
-    new_population = []
-
-    for i in range(population.len):
-        parent1 = find_parent(population)
-        parent2 = find_parent(population)
-        child = crossover(parent1, parent2)
-        new_population[i] = child
-
-    return new_population
 
 def find_fittest(population):
     """Returns the fittest individual in a population"""
@@ -61,6 +63,9 @@ def find_parent(population):
     tournament_population = []
 
     for i in range(5):
+        tournament_population[i] = random.choice(population)
+
+    return find_fittest(tournament_population)
 
 
 
