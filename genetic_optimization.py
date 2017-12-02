@@ -56,17 +56,14 @@ class Individual:
         return self.fitness
 
 
-def crossover(parent1, parent2):
-    """Returns a child created from two parents."""
-    child = Individual()
+def find_parent(population):
+    """Returns a parent used for creating a child."""
+    tournament_population = []
 
-    for i in range(len(parent1.genes)):
-        if random.random <= CROSSOVER_THRESHOLD:
-            child.genes[i] = parent1.genes[i]
-        else:
-            child.genes[i] = parent2.genes[i]
+    for i in range(5):
+        tournament_population[i] = random.choice(population)
 
-    return child
+    return find_fittest(tournament_population)
 
 
 def find_fittest(population):
@@ -80,11 +77,14 @@ def find_fittest(population):
     return fittest
 
 
-def find_parent(population):
-    """Returns a parent used for creating a child."""
-    tournament_population = []
+def crossover(parent1, parent2):
+    """Returns a child created from two parents."""
+    child = Individual()
 
-    for i in range(5):
-        tournament_population[i] = random.choice(population)
+    for i in range(len(parent1.genes)):
+        if random.random <= CROSSOVER_THRESHOLD:
+            child.genes[i] = parent1.genes[i]
+        else:
+            child.genes[i] = parent2.genes[i]
 
-    return find_fittest(tournament_population)
+    return child
