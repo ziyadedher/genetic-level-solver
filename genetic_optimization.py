@@ -1,12 +1,20 @@
 import random
-import simulation
 
-GENE_LENGTH = 25                  # Length of an individual's genes (directions)
-DIRECTIONS = ('U', 'R', 'D', 'L') # Directions that an individual can move
-CROSSOVER_THRESHOLD = 0.5         # Threshold which determines which parent to
-                                  # take a gene from
-MUTATION_THRESHOLD = 0.08         # Threshold which determines if a random gene
-                                  # should be created for a child
+# Directions that an individual can move
+DIRECTIONS = ('U', 'R', 'D', 'L')
+
+# Length of an individual's genes (directions)
+GENE_LENGTH = 40
+
+# Number of individuals who compete to become the parent of a new child
+NUM_TOURNAMENT_INDIVIDUALS = 5
+
+# Threshold which determines if a random gene should be created for a child
+MUTATION_THRESHOLD = 0.08
+
+# Threshold which determines which parent a child should take a gene from
+# (equal chance for both parents)
+CROSSOVER_THRESHOLD = (1 + MUTATION_THRESHOLD) / 2
 
 
 class Population:
@@ -48,8 +56,8 @@ def find_parent(population):
     """Returns a parent used for creating a child."""
     tournament_population = []
 
-    for i in range(5):
-        tournament_population[i] = random.choice(population)
+    for i in range(NUM_TOURNAMENT_INDIVIDUALS):
+        tournament_population.append(random.choice(population))
 
     return find_fittest(tournament_population)
 
@@ -74,7 +82,7 @@ def crossover(parent1, parent2):
         random_num = random.random()
         if random_num <= MUTATION_THRESHOLD:
             new_child.genes[i] = random.choice(DIRECTIONS)
-        elif random.random <= CROSSOVER_THRESHOLD:
+        elif random_num <= CROSSOVER_THRESHOLD:
             new_child.genes[i] = parent1.genes[i]
         else:
             new_child.genes[i] = parent2.genes[i]
