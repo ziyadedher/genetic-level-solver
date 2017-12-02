@@ -1,20 +1,22 @@
 import random
+import simulation
 
-GENE_LENGTH = 25                  # Length of an individuals genes (directions)
+GENE_LENGTH = 25                  # Length of an individual's genes (directions)
 DIRECTIONS = ('U', 'R', 'D', 'L') # Directions that an individual can move
 CROSSOVER_THRESHOLD = 0.5         # Threshold which determines which parent to
                                   # take a gene from
+MUTATION_THRESHOLD = 0.08         # Threshold which determines if a random gene
+                                  # should be created for a child
 
 
 class Population:
 
-    def __init__(self, num_individuals):
+    def __init__(self, num_individuals=1):
         """Creates  a list of individuals with randomly generated genes."""
-
         self.population = []
 
         for i in range(num_individuals):
-             self.population[i] = Individual()
+             self.population.append(Individual())
 
     def create_new_generation(self):
         """ Creates a new generation based on favourable characteristics
@@ -25,20 +27,10 @@ class Population:
         for i in range(len(self.population)):
             parent1 = find_parent(self.population)
             parent2 = find_parent(self.population)
-            child = crossover(parent1, parent2)
-            new_population[i] = child
+            new_child = crossover(parent1, parent2)
+            new_population.append(new_child)
 
         self.population = new_population
-
-    def update_fitness(self):
-        """Calculates fitness during run on the grid."""
-
-        # Change functionfromsim to function being created
-
-        # fitness_scores = functionfromsim(self.population)
-        #
-        # for i in range(len(self.population)):
-        #     self.population[i].fitness = fitness_scores[i]
 
 
 class Individual:
@@ -49,11 +41,7 @@ class Individual:
         self.genes = []
 
         for i in range(GENE_LENGTH):
-            self.genes[i] = random.choice(DIRECTIONS)
-
-    # Getter
-    def get_fitness(self):
-        return self.fitness
+            self.genes.append(random.choice(DIRECTIONS))
 
 
 def find_parent(population):
@@ -79,12 +67,16 @@ def find_fittest(population):
 
 def crossover(parent1, parent2):
     """Returns a child created from two parents."""
-    child = Individual()
+    new_child = Individual()
 
+    # Assigns parents' (or random) genes to the new child
     for i in range(len(parent1.genes)):
-        if random.random <= CROSSOVER_THRESHOLD:
-            child.genes[i] = parent1.genes[i]
+        random_num = random.random()
+        if random_num <= MUTATION_THRESHOLD:
+            new_child.genes[i] = random.choice(DIRECTIONS)
+        elif random.random <= CROSSOVER_THRESHOLD:
+            new_child.genes[i] = parent1.genes[i]
         else:
-            child.genes[i] = parent2.genes[i]
+            new_child.genes[i] = parent2.genes[i]
 
-    return child
+    return new_child
