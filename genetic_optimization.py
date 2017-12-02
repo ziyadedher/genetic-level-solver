@@ -1,13 +1,13 @@
 import random
 
-# Directions that an individual can move
+# Directions that a creature can move
 DIRECTIONS = ('U', 'R', 'D', 'L')
 
-# Length of an individual's genes (directions)
-GENE_LENGTH = 40
+# Length of a creature's genes (directions)
+GENE_LENGTH = 100
 
-# Number of individuals who compete to become the parent of a new child
-NUM_TOURNAMENT_INDIVIDUALS = 5
+# Number of creatures that compete to become the parent of a new child
+NUM_TOURNAMENT_CREATURES = 5
 
 # Threshold which determines if a random gene should be created for a child
 MUTATION_THRESHOLD = 0.08
@@ -19,16 +19,18 @@ CROSSOVER_THRESHOLD = (1 + MUTATION_THRESHOLD) / 2
 
 class Population:
 
-    def __init__(self, num_individuals=1):
-        """Creates  a list of individuals with randomly generated genes."""
+    def __init__(self, num_creatures=1):
+        """Creates a list of <num_creatures> creatures with randomly
+        generated genes.
+        """
         self.population = []
 
-        for i in range(num_individuals):
-             self.population.append(Individual())
+        for i in range(num_creatures):
+             self.population.append(Creature())
 
     def create_new_generation(self):
         """ Creates a new generation based on favourable characteristics
-            of individuals.
+            of creatures.
         """
         new_population = []
 
@@ -40,11 +42,19 @@ class Population:
 
         self.population = new_population
 
+    def calculate_average_fitness(self):
+        """Calculates the average fitness of a generation of creatures"""
+        avg_fitness = 0
+        for creature in self.population:
+            avg_fitness += creature.fitness
 
-class Individual:
+        return (avg_fitness / len(self.population))
+
+
+class Creature:
 
     def __init__(self):
-        """Create an individual with random genes."""
+        """Create a creature with random genes."""
         self.fitness = 0
         self.genes = []
 
@@ -56,26 +66,26 @@ def find_parent(population):
     """Returns a parent used for creating a child."""
     tournament_population = []
 
-    for i in range(NUM_TOURNAMENT_INDIVIDUALS):
+    for i in range(NUM_TOURNAMENT_CREATURES):
         tournament_population.append(random.choice(population))
 
     return find_fittest(tournament_population)
 
 
 def find_fittest(population):
-    """Returns the fittest individual in a given population."""
+    """Returns the fittest creature in a given population."""
     fittest = population[0]
 
-    for individual in population:
-        if individual.fitness > fittest.fitness:
-            fittest = individual
+    for creature in population:
+        if creature.fitness > fittest.fitness:
+            fittest = creature
 
     return fittest
 
 
 def crossover(parent1, parent2):
     """Returns a child created from two parents."""
-    new_child = Individual()
+    new_child = Creature()
 
     # Assigns parents' (or random) genes to the new child
     for i in range(len(parent1.genes)):
