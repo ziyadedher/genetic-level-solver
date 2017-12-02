@@ -2,6 +2,7 @@
 """
 
 import time
+import random
 import pygame
 
 import genetic_optimization as genetics
@@ -98,6 +99,8 @@ class Level:
         else:
             self._grid = blueprint
 
+        self.add_points()
+
     def _generate_boxed_grid(self):
         """Generates a grid with walls only at the sides.
         """
@@ -110,6 +113,18 @@ class Level:
                 column = [1] + [0] * (NUM_ROWS - 2) + [1]
             grid.append(column)
         return grid
+
+    def add_points(self):
+        """Randomly scatters points across the empty tiles of the level.
+        """
+        chance = 0.03
+
+        for x in range(len(self._grid)):
+            for y in range(len(self._grid[x])):
+                if self._grid[x][y] == 0:
+                    rand = random.random()
+                    if rand < chance:
+                        self._grid[x][y] = 2
 
     def draw(self, display):
         """Draws this level to the given PyGame display.
@@ -200,4 +215,4 @@ class Creature:
 
 if __name__ == '__main__':
     sim = Simulation()
-    sim.start(5, 10)
+    sim.start(50, 10)
