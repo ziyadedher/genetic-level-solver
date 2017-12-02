@@ -1,34 +1,63 @@
 import random
 
-MAX_NODES = 5
-GENE_LENGTH = 64
+GENE_LENGTH = 25
+DIRECTIONS = ('U', 'R', 'D', 'L')
 
 class Population:
 
     def __init__(self, num_individuals):
-        individuals = []
+
+        self.population = []
 
         for i in range(num_individuals):
-             individuals[i] = Individual()
-
-
+             self.population[i] = Individual()
 
 
 class Individual:
 
     def __init__(self):
         """Create a creature with random values"""
-        fitness = 0
-        genes = []
+        self.fitness = 0
+        self.genes = []
 
         for i in range(GENE_LENGTH):
-            genes[i] = random.randint(0,1)
+            self.genes[i] = random.choice(DIRECTIONS)
+
+    def get_fitness(self):
+        return self.fitness
 
     def calculate_fitness(self):
-        """create fitness function"""
+        """Calculates fitness during run on the grid"""
 
 
-def create_new_generation():
+def create_new_generation(population):
     """ Creates a new generation based on favourable characteristics of individuals"""
+
+    new_population = []
+
+    for i in range(population.len):
+        parent1 = find_parent(population)
+        parent2 = find_parent(population)
+        child = crossover(parent1, parent2)
+        new_population[i] = child
+
+    return new_population
+
+def find_fittest(population):
+
+    fittest = population[0]
+
+    for individual in population:
+        if individual.fitness > fittest.fitness:
+            fittest = individual
+
+    return fittest
+
+def find_parent(population):
+
+    tournament_population = []
+
+    for i in range(5):
+        tournament_population
 
 
