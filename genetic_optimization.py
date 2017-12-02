@@ -1,13 +1,15 @@
 import random
 
-GENE_LENGTH = 25
-DIRECTIONS = ('U', 'R', 'D', 'L')
-CROSSOVER_THRESHOLD = 0.5
+GENE_LENGTH = 25                  # Length of an individuals genes (directions)
+DIRECTIONS = ('U', 'R', 'D', 'L') # Directions that an individual can move
+CROSSOVER_THRESHOLD = 0.5         # Threshold which determines which parent to
+                                  # take a gene from
+
 
 class Population:
 
     def __init__(self, num_individuals):
-        """Creates  a list of individuals with randomly generated genes"""
+        """Creates  a list of individuals with randomly generated genes."""
 
         self.population = []
 
@@ -15,8 +17,9 @@ class Population:
              self.population[i] = Individual()
 
     def create_new_generation(self):
-        """ Creates a new generation based on favourable characteristics of individuals"""
-
+        """ Creates a new generation based on favourable characteristics
+            of individuals.
+        """
         new_population = []
 
         for i in range(len(self.population)):
@@ -28,18 +31,20 @@ class Population:
         self.population = new_population
 
     def update_fitness(self):
-        """Calculates fitness during run on the grid"""
+        """Calculates fitness during run on the grid."""
 
-        # fitness_scores = functionfromsim(self.population)     Call this function made in simulation.py
+        # Change functionfromsim to function being created
 
-        for i in range(len(self.population)):
-            # self.population[i].fitness = fitness_scores[i]
+        # fitness_scores = functionfromsim(self.population)
+        #
+        # for i in range(len(self.population)):
+        #     self.population[i].fitness = fitness_scores[i]
 
 
 class Individual:
 
     def __init__(self):
-        """Create a creature with random values"""
+        """Create an individual with random genes."""
         self.fitness = 0
         self.genes = []
 
@@ -52,8 +57,7 @@ class Individual:
 
 
 def crossover(parent1, parent2):
-    """Returns a child created from two parents"""
-
+    """Returns a child created from two parents."""
     child = Individual()
 
     for i in range(len(parent1.genes)):
@@ -66,7 +70,7 @@ def crossover(parent1, parent2):
 
 
 def find_fittest(population):
-    """Returns the fittest individual in a population"""
+    """Returns the fittest individual in a given population."""
     fittest = population[0]
 
     for individual in population:
@@ -75,9 +79,9 @@ def find_fittest(population):
 
     return fittest
 
-def find_parent(population):
-    """Returns a parent used for creating a child"""
 
+def find_parent(population):
+    """Returns a parent used for creating a child."""
     tournament_population = []
 
     for i in range(5):
