@@ -28,7 +28,7 @@ To use this program first make sure you have all the required dependencies, then
 The basics of this program (release `v1.0`) was created in 8 hours at the University of Toronto St. George campus Local Hack Day hackathon. It placed first.
 
 Team members responsible for this program are the following:
-Eliano Anile
-Jack McKinney
-Lucas Rea
-Ziyad Edher
+Eliano Anile<br />
+Jack McKinney<br />
+Lucas Rea<br />
+Ziyad Edher<br />
