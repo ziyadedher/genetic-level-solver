@@ -10,7 +10,7 @@ import pygame
 
 import matplotlib.pyplot as plt
 
-import genetic_optimization as genetics
+import genetics
 
 
 # Screen constants

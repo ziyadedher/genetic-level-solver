@@ -10,7 +10,7 @@ Built in stock Python with no libraries, this repository was meant as a machine 
   * Visualize the evolutions using a set of highly customizable parameters set through the command line on start.
   * Design your own levels for the simulation to run on using the included level creator.
   * View statistics using `matplotlib`.
-  * Plug-in to the program using the 'highly-scalable<sup><sup><sup>ahem</sup></sup></sup> built-in API.
+  * Plug-in to the program using the 'highly-scalable'<sup><sup><sup>ahem</sup></sup></sup> built-in API.
 
 
 ### Dependencies
