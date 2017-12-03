@@ -3,14 +3,12 @@ import simulation
 import pickle
 import sys
 import os
-if len(sys.argv) != 2:
-    print("You fool! You must invoke this command as such:")
-    print("python level_creator.py FILE")
-    sys.exit()
+
+print("Welcome to the level creator. Once you continue you can left click on the screen to draw and right click to erase. Left arrow key will make you draw points (green), and right will make you draw walls (white).")
+input("Press enter if you understand. \n")
 
 def updated_level(grid):
     return simulation.Level(grid, points=False)
-
 
 pwidth, pheight = simulation.SCREEN_SIZE
 bwidth, bheight = pwidth // simulation.TILE_SIZE, pheight // simulation.TILE_SIZE
@@ -47,7 +45,9 @@ while going:
 
 
 directory = "levels"
-file_name = sys.argv[1]
+pygame.quit()
+file_name = input("What would you like to call this level?\n>")
+
 file_path = directory + "/" + file_name
 if not os.path.exists(directory):
     os.mkdir(directory)
