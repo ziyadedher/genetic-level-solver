@@ -1,6 +1,7 @@
 """General simulation control.
 """
 
+import os
 import time
 import random
 import pickle
@@ -49,24 +50,47 @@ class Simulation:
         pygame.display.set_caption(SCREEN_TITLE)
 
         # Initializes the level
-        self.level = Level()
+        level = self.ask_level()
+        if level == []:
+            self.level = Level()
+        else:
+            self.level = Level(level)
         self.level.draw(self.display)
 
-    def start(self, generations, num_creatures, draw_step):
+    def ask_level(self):
+        """Asks for the level to load.
+        """
+        path = "levels/"
+        level = []
+
+        if os.path.exists(path):
+            os.listdir(path)
+            level = input("Enter a file name of the above, or hit enter to generate.")
+        else:
+            input("No levels found. Press enter to generate.")
+            return []
+
+        if not os.path.exists(path + level):
+            input("That is not a level. Press enter to generate.")
+            return []
+
+        return pickle.load(open(path + level, "rb"))
+
+    def start(self, generations, num_creatures, movements, draw_step=1):
         """Starts the simulation and
         runs for <generations> number of generations with
         <num_creatures> number of creatures.
         Draws the generation every <draw_step>.
         """
         fitness_levels = []
-        populations = genetics.Population(num_creatures)
+        populations = genetics.Population(movements, num_creatures)
 
         for i in range(generations):
             draw = (i % draw_step) == 0
             pop = populations.pop
             creatures = [Creature(self.level) for _ in range(len(pop))]
 
-            for step_i in range(genetics.GENE_LENGTH):
+            for step_i in range(movements):
                 self.step(creatures, pop, step_i, draw)
             for j in range(len(creatures)):
                 pop[j].fitness = creatures[j].points
@@ -75,12 +99,6 @@ class Simulation:
             populations.create_new_generation()
 
         self.draw_graph(fitness_levels)
-
-    def draw_graph(self, fitness_levels):
-        """Draws the graph of fitness versus generation.
-        """
-        plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
-        plt.show()
 
     def step(self, creatures, pop, step_number, draw):
         """Runs a step in the simulation.
@@ -92,6 +110,12 @@ class Simulation:
             if draw:
                 creatures[i].draw(self.display)
         pygame.display.update()
+
+    def draw_graph(self, fitness_levels):
+        """Draws the graph of fitness versus generation.
+        """
+        plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
+        plt.show()
 
 
 class Level:
@@ -105,9 +129,10 @@ class Level:
     #       1: wall
     #       2: point
 
-    def __init__(self, blueprint=None):
+    def __init__(self, blueprint=None, points=True):
         """Initializes this level with the given blueprint in the form of
-        a list of columns where each column is a list of integers.
+        a list of columns where each column is a list of integers. Adds
+        points randomly if points is set to True.
 
         - 0 represents a empty block
         - 1 represents a wall
@@ -119,7 +144,8 @@ class Level:
         else:
             self._grid = blueprint
 
-        self.add_points()
+        if points:
+            self.add_points()
 
     def _generate_boxed_grid(self):
         """Generates a grid with walls only at the sides.
@@ -201,12 +227,13 @@ class Creature:
     def _try_move(self, displacement):
         """Try to move a certain displacement, update accordingly.
         """
-        move_to = (self._x + displacement[0], self._y + displacement[1])
-        status = self.level.get_tile_at(move_to)
+        move_x = (self._x + displacement[0]) % NUM_COLUMNS
+        move_y = (self._y + displacement[1]) % NUM_ROWS
+        status = self.level.get_tile_at((move_x, move_y))
 
         if status != 1:
-            self._x = move_to[0]
-            self._y = move_to[1]
+            self._x = move_x
+            self._y = move_y
         if status == 2:
             pos = (self._x, self._y)
             if pos not in self._visited:
@@ -242,4 +269,4 @@ class Creature:
 
 if __name__ == '__main__':
     sim = Simulation()
-    sim.start(250, 100, 10)
+    sim.start(250, 100, 200, draw_step=10)
