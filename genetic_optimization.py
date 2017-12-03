@@ -37,7 +37,7 @@ class Population:
         for i in range(len(self.pop)):
             parent1 = random.choice(tournament_pop)
             parent2 = random.choice(tournament_pop)
-            new_child = crossover(parent1, parent2)
+            new_child = crossover(parent1, parent2, self.gene_length)
             new_pop.append(new_child)
 
         self.pop = new_pop
@@ -68,10 +68,10 @@ def get_fitness(creature):
     return creature.fitness
 
 
-def crossover(parent1, parent2):
+def crossover(parent1, parent2, gene_length):
     """Returns a child created from two parents.
     """
-    new_child = Creature()
+    new_child = Creature(gene_length)
 
     # Assigns parents' (or random) genes to the new child
     for i in range(len(parent1.genes)):
