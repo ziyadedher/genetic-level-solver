@@ -52,7 +52,7 @@ class Simulation:
         # Initializes the level
         level = self.ask_level()
         if level == []:
-            self.level = Level()
+            self.level = Level(points=True)
         else:
             self.level = Level(level)
         self.level.draw(self.display)
@@ -129,7 +129,7 @@ class Level:
     #       1: wall
     #       2: point
 
-    def __init__(self, blueprint=None, points=True):
+    def __init__(self, blueprint=None, points=False):
         """Initializes this level with the given blueprint in the form of
         a list of columns where each column is a list of integers. Adds
         points randomly if points is set to True.
