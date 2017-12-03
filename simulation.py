@@ -2,6 +2,7 @@
 """
 
 import os
+import sys
 import time
 import random
 import pickle
@@ -29,6 +30,12 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 COLORS = [BLACK, WHITE, GREEN]
+
+
+class EndSimulation(Exception):
+    """Raised when the simulation is ended prematurely.
+    """
+    pass
 
 
 class Simulation:
@@ -110,7 +117,12 @@ class Simulation:
             creatures = [Creature(self.level) for _ in range(len(pop))]
 
             for step_i in range(movements):
-                self.step(creatures, pop, step_i, draw)
+                try:
+                    self.step(creatures, pop, step_i, draw)
+                except EndSimulation:
+                    pygame.quit()
+                    self.draw_graph(fitness_levels)
+                    return
             for j in range(len(creatures)):
                 pop[j].fitness = creatures[j].points
 
@@ -128,6 +140,10 @@ class Simulation:
             creatures[i].move(pop[i].genes[step_number])
             if draw:
                 creatures[i].draw(self.display)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                raise EndSimulation
         pygame.display.update()
 
     def draw_graph(self, fitness_levels):
