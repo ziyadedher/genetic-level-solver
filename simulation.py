@@ -2,8 +2,6 @@
 """
 
 import os
-import sys
-import time
 import random
 import pickle
 import pygame
@@ -53,8 +51,8 @@ class Simulation:
         """Initalizes this simulation along with physics and display.
         """
         # Ask for a level and if to generate random points
-        level = self.ask_level()
-        chance = self.ask_points()
+        level = ask_level()
+        chance = ask_points()
 
         # Initializes pygame display with size and title
         pygame.init()
@@ -68,71 +66,6 @@ class Simulation:
             self.level = Level(blueprint=level, chance=chance)
         self.level.draw(self.display)
 
-    def ask_level(self):
-        """Asks for the level to load.
-
-        Returns an empty array if the level is randomly generated,
-        returns an 2-d array if with the level if it is chosen.
-        """
-        # Stores the level
-        level = []
-
-        # Asks the user if they want to load a level
-        ans = input("Load a preexisting level? [y/n] ")
-        if ans.lower() == 'n':
-            return []
-
-        # Makes sure the levels path exists
-        if os.path.exists(LEVEL_PATH):
-            # Lists the maps in the path
-            for item in os.listdir(LEVEL_PATH):
-                print(item)
-
-            # Asks for the name
-            level = input("Enter a file name of the above, " +
-                          "or hit enter to continue: ")
-
-            # If no name was given or the level does not exist, returns
-            if level == "":
-                return []
-            if not os.path.exists(LEVEL_PATH + level):
-                input("That is not a level. Press enter to continue. ")
-                return []
-
-            # Loads and returns the level if all is well
-            return pickle.load(open(LEVEL_PATH + level, "rb"))
-
-        # If the path does not exist, then return
-        input("No levels found. Press enter to continue. ")
-        return []
-
-    def ask_points(self):
-        """Asks if points should be randomly placed and the frequency if yes.
-
-        Returns the frequency float.
-        """
-        # Asks whether to randomly generate
-        ans = input("Randomly generate points? [y/n] ")
-        if ans.lower() == "n":
-            return 0
-
-        # Asks until a valid input is given.
-        prompt = "Frequency (default: 0.025): "
-        while True:
-            freq = input(prompt)
-            # Returns default if no answer was given
-            if freq == "":
-                return 0.025
-            try:
-                freq = float(freq)
-                if freq < 0.0 or freq > 1.0:
-                    raise ValueError
-            except ValueError:
-                print("Please input a number between 0.0 and 1.0.")
-                continue
-            else:
-                return freq
-
     def start(self, generations, num_creatures, movements, draw_step=1):
         """Starts the simulation and
         runs for <generations> number of generations with
@@ -144,7 +77,7 @@ class Simulation:
         fitness_levels = []
 
         # Generates a population holder
-        populations = genetics.Population(movements, num_creatures)
+        populations = genetics.PopulationController(movements, num_creatures)
 
         # Runs through the amount of generations needed to simulate
         for i in range(generations):
@@ -162,21 +95,21 @@ class Simulation:
                     self.step(creatures, pop, step_i, draw)
                 except EndSimulation:
                     pygame.quit()
-                    self.draw_graph(fitness_levels)
+                    draw_graph(fitness_levels)
                     return
 
             # Updates each individual's fitness based off the number of points
             # they gathered in that generation
-            for j in range(len(creatures)):
-                pop[j].fitness = creatures[j].points
+            for j, ind in enumerate(pop):
+                ind.fitness = creatures[j].points
 
-            # Appends the average fitness to the fitness level tracker
-            fitness_levels.append(populations.calculate_average_fitness())
+            # Appends the fitness statistics to the fitness level tracker
+            fitness_levels.append(populations.calculate_fitness_statistics())
             # Creates a new generation
             populations.create_new_generation()
 
         # Draws statistics
-        self.draw_graph(fitness_levels)
+        draw_graph(fitness_levels)
 
     def step(self, creatures, pop, step_number, draw):
         """Runs a step in the simulation.
@@ -188,11 +121,11 @@ class Simulation:
             self.level.draw(self.display)
 
         # Runs through each creature and moves accordingly
-        for i in range(len(creatures)):
-            creatures[i].move(pop[i].genes[step_number])
+        for i, creature in enumerate(creatures):
+            creature.move(pop[i].genes[step_number])
             # Draws the creature if required
             if draw:
-                creatures[i].draw(self.display)
+                creature.draw(self.display)
 
         # Close event handler, raises an EndSimulation exception
         for event in pygame.event.get():
@@ -202,21 +135,6 @@ class Simulation:
         # Updates the display to show changes if required
         if draw:
             pygame.display.update()
-
-    def draw_graph(self, fitness_levels):
-        """Draws the graph of fitness versus generation.
-        """
-        # Plots fitness level versus generation
-        plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
-
-        # Sets display labels
-        plt.xlabel("Generation")
-        plt.ylabel("Fitness")
-        plt.title("Average Fitness over Generations")
-        plt.grid()
-
-        # Shows the plot
-        plt.show()
 
 
 class Level:
@@ -243,62 +161,39 @@ class Level:
         """
         # Generates the grid depending on the given blueprint
         if blueprint is None:
-            self._grid = self._generate_empty_grid()
+            self._grid = _generate_empty_grid()
         else:
             self._grid = blueprint
 
         # Adds points if required
         self.add_points(chance)
 
-    def _generate_empty_grid(self):
-        """Generates an empty grid.
-        """
-        # Generates the grid and returns it
-        grid = []
-        for x in range(NUM_COLUMNS):
-            column = [0] * NUM_ROWS
-            grid.append(column)
-        return grid
-
-    def _generate_boxed_grid(self):
-        """Generates a grid with walls only at the sides.
-        """
-        # Generates the grid and returns it
-        grid = []
-        for x in range(NUM_COLUMNS):
-            if x == 0 or x == NUM_COLUMNS - 1:
-                column = [1] * NUM_ROWS
-            else:
-                column = [1] + [0] * (NUM_ROWS - 2) + [1]
-            grid.append(column)
-        return grid
-
     def add_points(self, chance):
         """Randomly scatters points across the empty tiles of the level
         at the rate of <chance>.
         """
         # Runs through each tile
-        for x in range(len(self._grid)):
-            for y in range(len(self._grid[x])):
+        for i in range(len(self._grid)):
+            for j in range(len(self._grid[i])):
                 # Makes sure it is empty
-                if self._grid[x][y] == 0:
+                if self._grid[i][j] == 0:
                     # Randomly chooses whether to make it a point
                     if random.random() < chance:
-                        self._grid[x][y] = 2
+                        self._grid[i][j] = 2
 
     def draw(self, display):
         """Draws this level to the given PyGame display.
         """
         # Draws each tile in the grid
-        for x in range(len(self._grid)):
-            for y in range(len(self._grid[x])):
+        for i in range(len(self._grid)):
+            for j in range(len(self._grid[i])):
                 # Calculates the left and top
-                left = x * TILE_SIZE
-                top = y * TILE_SIZE
+                left = i * TILE_SIZE
+                top = j * TILE_SIZE
 
                 # Creates the rectangle and chooses the color
                 tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
-                color = COLORS[self._grid[x][y]]
+                color = COLORS[self._grid[i][j]]
 
                 # Draws the rectangle
                 pygame.draw.rect(display, color, tile_rect)
@@ -398,3 +293,118 @@ class Creature:
 
         # Draws the rectangle
         pygame.draw.rect(display, color, tile_rect)
+
+
+def _generate_empty_grid():
+    """Generates an empty grid.
+    """
+    # Generates the grid and returns it
+    grid = []
+    for _ in range(NUM_COLUMNS):
+        column = [0] * NUM_ROWS
+        grid.append(column)
+    return grid
+
+
+def _generate_boxed_grid():
+    """Generates a grid with walls only at the sides.
+    """
+    # Generates the grid and returns it
+    grid = []
+    for i in range(NUM_COLUMNS):
+        if i == 0 or i == NUM_COLUMNS - 1:
+            column = [1] * NUM_ROWS
+        else:
+            column = [1] + [0] * (NUM_ROWS - 2) + [1]
+        grid.append(column)
+    return grid
+
+
+def ask_level():
+    """Asks for the level to load.
+
+    Returns an empty array if the level is randomly generated,
+    returns an 2-d array if with the level if it is chosen.
+    """
+    # Stores the level
+    level = []
+
+    # Asks the user if they want to load a level
+    ans = input("Load a preexisting level? [y/n] ")
+    if ans.lower() == 'n':
+        return []
+
+    # Makes sure the levels path exists
+    if os.path.exists(LEVEL_PATH):
+        # Lists the maps in the path
+        for item in os.listdir(LEVEL_PATH):
+            print(item)
+
+        # Asks for the name
+        level = input("Enter a file name of the above, " +
+                      "or hit enter to continue: ")
+
+        # If no name was given or the level does not exist, returns
+        if level == "":
+            return []
+        if not os.path.exists(LEVEL_PATH + level):
+            input("That is not a level. Press enter to continue. ")
+            return []
+
+        # Loads and returns the level if all is well
+        return pickle.load(open(LEVEL_PATH + level, "rb"))
+
+    # If the path does not exist, then return
+    input("No levels found. Press enter to continue. ")
+    return []
+
+
+def ask_points():
+    """Asks if points should be randomly placed and the frequency if yes.
+
+    Returns the frequency float.
+    """
+    # Asks whether to randomly generate
+    ans = input("Randomly generate points? [y/n] ")
+    if ans.lower() == "n":
+        return 0
+
+    # Asks until a valid input is given.
+    prompt = "Frequency (default: 0.025): "
+    while True:
+        freq = input(prompt)
+        # Returns default if no answer was given
+        if freq == "":
+            return 0.025
+        try:
+            freq = float(freq)
+            if freq < 0.0 or freq > 1.0:
+                raise ValueError
+        except ValueError:
+            print("Please input a number between 0.0 and 1.0.")
+            continue
+        else:
+            return freq
+
+
+def draw_graph(fitness_levels):
+    """Draws the graph of fitness versus generation.
+    """
+    # Separates the statistics
+    maximum_fitnesses = [stat[0] for stat in fitness_levels]
+    minimum_fitnesses = [stat[1] for stat in fitness_levels]
+    average_fitnesses = [stat[2] for stat in fitness_levels]
+
+    # Plots average fitness versus generation
+    plt.plot(average_fitnesses, 'b',
+             maximum_fitnesses, 'g-',
+             minimum_fitnesses, 'r-')
+
+    # Sets display labels
+    plt.xlabel("Generation")
+    plt.ylabel("Fitness")
+    plt.title("Fitness Statistics")
+    plt.grid()
+
+    # Shows the plot
+    plt.show()

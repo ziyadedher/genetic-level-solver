@@ -37,7 +37,7 @@ class PopulationController:
         self.gene_length = gene_length
 
         # Creates individuals based off how many creatures are required
-        for i in range(num_individuals):
+        for _ in range(num_individuals):
             self.pop.append(Individual(self.gene_length))
 
     def create_new_generation(self):
@@ -46,26 +46,43 @@ class PopulationController:
         """
         # Sorts the current population and gets a top percentage to compete
         sorted_pop = sorted(self.pop, key=lambda x: x.fitness, reverse=True)
-        tournament_pop = sorted_pop[:int(len(pop) * TOP_CREATURES_PERCENTAGE)]
+        tournament = sorted_pop[:int(len(self.pop) * TOP_CREATURES_PERCENTAGE)]
 
         # Empties the population to create a new set
         self.pop = []
 
         # Creates a new set of individuals by randomly choosing
         # two parents from the tournament set and crossing them
-        for i in range(len(self.pop)):
-            child = crossover(random.choice(tournament_pop),
-                              random.choice(tournament_pop),
+        for _ in range(len(sorted_pop)):
+            child = crossover(random.choice(tournament),
+                              random.choice(tournament),
                               self.gene_length)
             self.pop.append(child)
 
-    def calculate_average_fitness(self):
-        """Calculates the average fitness of a generation of creatures.
+    def calculate_fitness_statistics(self):
+        """Calculates fitness statistics of the current population.
+
+        Returns a tuple of the maximum, minimum, and average fitness of the
+        current population.
         """
-        avg_fitness = 0
-        for creature in self.pop:
-            avg_fitness += creature.fitness
-        return avg_fitness / len(self.pop)
+        # Sets up for statistic calculation
+        max_fit = self.pop[0].fitness
+        min_fit = self.pop[0].fitness
+        tot_fit = 0
+
+        for ind in self.pop:
+            # Sums up for average
+            tot_fit += ind.fitness
+
+            # Gets minimums and maximums
+            fit = ind.fitness
+            if fit > max_fit:
+                max_fit = fit
+            if fit < min_fit:
+                min_fit = fit
+
+        # Returns the tuple as stated
+        return (max_fit, min_fit, tot_fit / len(self.pop))
 
 
 class Individual:
@@ -73,7 +90,7 @@ class Individual:
 
     === Public Attributes ===
     fitness:
-        measure of how well this creature has done
+        measure of how well this individual has done
     genes:
         this individual's genes, which are the moves it will take
     """
@@ -84,14 +101,14 @@ class Individual:
         self.genes = []
 
         # Runs through the number of movements and assigns a random one
-        for i in range(gene_length):
+        for _ in range(gene_length):
             self.genes.append(random.choice(DIRECTIONS))
 
 
 def crossover(parent1, parent2, gene_length):
     """Returns a child created from two parents by crossing over their genes.
     """
-    child = Creature(gene_length)
+    child = Individual(gene_length)
 
     # Assigns parents' (or random) genes to the new child
     for i in range(len(parent1.genes)):
