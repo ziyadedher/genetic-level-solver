@@ -4,7 +4,10 @@ import pickle
 import sys
 import os
 
-print("Welcome to the level creator. Once you continue you can left click on the screen to draw and right click to erase. Left arrow key will make you draw points (green), and right will make you draw walls (white).")
+print("Welcome to the level creator.")
+print("Once you continue you can left click on the screen to draw and right click to erase.")
+print("Left arrow key will make you draw points (green), and right will make you draw walls (white).")
+print("Close the window to save your level.")
 input("Press enter if you understand. \n")
 
 def updated_level(grid):
