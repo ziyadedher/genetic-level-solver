@@ -28,7 +28,10 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
+
+# Drawing constants
 COLORS = [BLACK, WHITE, GREEN]
+WIDTH = [0, 0, 1]
 
 
 class EndSimulation(Exception):
@@ -194,9 +197,10 @@ class Level:
                 # Creates the rectangle and chooses the color
                 tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
                 color = COLORS[self._grid[i][j]]
+                width = WIDTH[self._grid[i][j]]
 
                 # Draws the rectangle
-                pygame.draw.rect(display, color, tile_rect)
+                pygame.draw.rect(display, color, tile_rect, width)
 
     def get_tile_at(self, position):
         """Gets the tile at the given position.

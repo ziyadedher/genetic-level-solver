@@ -104,9 +104,29 @@ class Individual:
         for _ in range(gene_length):
             self.genes.append(random.choice(DIRECTIONS))
 
+    def gene_frequency(self):
+        """Returns a dictionary with each gene type and the amount
+        of times it shows up.
+        """
+        freq = {}
+        for gene in self.genes:
+            if gene not in freq:
+                freq["gene"] = 0
+            freq["gene"] += 1
+
+    def mutate(self, mutation_rate):
+        """Mutates this individual based on the mutation rate.
+        """
+        rand = random.random()
+        for i, _ in enumerate(self.genes):
+            if rand <= mutation_rate:
+                self.genes[i] = random.choice(DIRECTIONS)
+
 
 def crossover(parent1, parent2, gene_length):
-    """Returns a child created from two parents by crossing over their genes.
+    """Crosses over the two parents to create a child, also includes mutations.
+
+    Returns the evolved child.
     """
     child = Individual(gene_length)
 
@@ -114,7 +134,7 @@ def crossover(parent1, parent2, gene_length):
     for i in range(len(parent1.genes)):
         rand = random.random()
         if rand <= MUTATION_THRESHOLD:
-            child.genes[i] = random.choice(DIRECTIONS)
+            child.mutate(MUTATION_THRESHOLD)
         elif rand <= CROSSOVER_THRESHOLD:
             child.genes[i] = parent1.genes[i]
         else:
