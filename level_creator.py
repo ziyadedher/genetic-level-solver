@@ -1,59 +1,74 @@
-import pygame
-import simulation
-import pickle
-import sys
+"""Level creator utility for the simulator.
+"""
+
 import os
+import sys
+import pickle
+import pygame
 
-print("Welcome to the level creator.")
-print("Once you continue you can left click on the screen to draw and right click to erase.")
-print("Left arrow key will make you draw points (green), and right will make you draw walls (white).")
+import simulation
+
+
+# Display constants
+SCREEN_TITLE = "Level Creator"
+
+
+# Displays instructions
+print("Left click on the screen to draw and right click to erase.")
+print("Left arrow key will make you draw points (green), " +
+      "and right will make you draw walls (white).")
 print("Close the window to save your level.")
-input("Press enter if you understand. \n")
+input("Press enter to continue. \n")
 
-def updated_level(grid):
-    return simulation.Level(grid, points=False)
 
-pwidth, pheight = simulation.SCREEN_SIZE
-bwidth, bheight = pwidth // simulation.TILE_SIZE, pheight // simulation.TILE_SIZE
-grid = [[0] * bheight for x in range(bwidth)]
-level = updated_level(grid)
+# Creates the stock empty level with no points and initializes PyGame
+level = simulation.Level(blueprint=None, chance=0)
 pygame.init()
+display = pygame.display.set_mode(simulation.SCREEN_SIZE)
+pygame.display.set_caption(SCREEN_TITLE)
 
-screen = pygame.display.set_mode(simulation.SCREEN_SIZE)
-going = True
-old_position = ()
+# Keeps track if the editor is closed and which tile is being added
+editing = True
 adding = 1
 
-while going:
+# Runs until editing is finished
+while editing:
+    # Event handler
     for event in pygame.event.get():
+        # Ends the editor on quit
         if event.type == pygame.QUIT:
-            going = False
+            editing = False
+
+        # Sets the tile to add
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 adding = 2
             if event.key == pygame.K_RIGHT:
                 adding = 1
 
-    position = pygame.mouse.get_pos()
-    grid_pos = position[0] // simulation.TILE_SIZE, position[1] // \
-        simulation.TILE_SIZE
+    # Gets mouse position and its respective position on the grid
+    mouse_pos = pygame.mouse.get_pos()
+    grid_pos = (mouse_pos[0] // simulation.TILE_SIZE,
+                mouse_pos[1] // simulation.TILE_SIZE)
+
+    # Adds if left mouse was pressed and removes if right mouse
     if pygame.mouse.get_pressed()[0]:
-        grid[grid_pos[0]][grid_pos[1]] = adding
-    if pygame.mouse.get_pressed()[2]:
-        grid[grid_pos[0]][grid_pos[1]] = 0
-        level = updated_level(grid)
-        old_position = grid_pos
-    level.draw(screen)
+        level.set_tile_at(grid_pos, adding)
+    elif pygame.mouse.get_pressed()[2]:
+        level.set_tile_at(grid_pos, 0)
+
+    # Draws the level and updates the display
+    level.draw(display)
     pygame.display.update()
 
-
-directory = "levels"
+# Quits PyGame window
 pygame.quit()
-file_name = input("What would you like to call this level?\n>")
 
-file_path = directory + "/" + file_name
-if not os.path.exists(directory):
-    os.mkdir(directory)
-file = open(file_path, "wb+")
-pickle.dump(grid, file)
-file.close()
+# Creates the levels directory if it did not exist
+if not os.path.exists(simulation.LEVEL_PATH):
+    os.mkdir(simulation.LEVEL_PATH)
+
+# Asks for a name and saves
+name = input("What would you like to call this level?\n> ")
+with open(simulation.LEVEL_PATH + name, "wb+") as save:
+    level.dump_grid(save)

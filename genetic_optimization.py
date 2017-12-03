@@ -1,4 +1,10 @@
+"""Brains of the operation, controls all genetic algorithm stuff.
+This is what makes things happen.
+"""
+
+
 import random
+
 
 # Directions that a creature can move
 DIRECTIONS = ('U', 'R', 'D', 'L')
@@ -14,33 +20,44 @@ MUTATION_THRESHOLD = 0.02
 CROSSOVER_THRESHOLD = (1 + MUTATION_THRESHOLD) / 2
 
 
-class Population:
+class PopulationController:
+    """Controls the populations that go through the genetic algorithm.
 
-    def __init__(self, gene_length, num_creatures):
-        """Creates a list of <num_creatures> creatures with randomly
-        generated genes.
+    === Public Attributes ===
+    pop:
+        current population, which is a list of individuals
+    gene_length:
+        length of the genes, which is the amount of moves
+    """
+    def __init__(self, gene_length, num_individuals):
+        """Creates a list of <num_individuals> creatures with randomly
+        generated genes of length <gene_length>.
         """
         self.pop = []
         self.gene_length = gene_length
 
-        for i in range(num_creatures):
-            self.pop.append(Creature(self.gene_length))
+        # Creates individuals based off how many creatures are required
+        for i in range(num_individuals):
+            self.pop.append(Individual(self.gene_length))
 
     def create_new_generation(self):
         """ Creates a new generation based on favourable characteristics
-            of creatures.
+        of creatures.
         """
-        new_pop = []
-        sorted_pop = sorted(self.pop, key=get_fitness, reverse=True)
-        tournament_pop = sorted_pop[:int(len(sorted_pop) * TOP_CREATURES_PERCENTAGE)]
+        # Sorts the current population and gets a top percentage to compete
+        sorted_pop = sorted(self.pop, key=lambda x: x.fitness, reverse=True)
+        tournament_pop = sorted_pop[:int(len(pop) * TOP_CREATURES_PERCENTAGE)]
 
+        # Empties the population to create a new set
+        self.pop = []
+
+        # Creates a new set of individuals by randomly choosing
+        # two parents from the tournament set and crossing them
         for i in range(len(self.pop)):
-            parent1 = random.choice(tournament_pop)
-            parent2 = random.choice(tournament_pop)
-            new_child = crossover(parent1, parent2, self.gene_length)
-            new_pop.append(new_child)
-
-        self.pop = new_pop
+            child = crossover(random.choice(tournament_pop),
+                              random.choice(tournament_pop),
+                              self.gene_length)
+            self.pop.append(child)
 
     def calculate_average_fitness(self):
         """Calculates the average fitness of a generation of creatures.
@@ -48,39 +65,42 @@ class Population:
         avg_fitness = 0
         for creature in self.pop:
             avg_fitness += creature.fitness
-
         return avg_fitness / len(self.pop)
 
 
-class Creature:
+class Individual:
+    """Single individual in a population.
 
+    === Public Attributes ===
+    fitness:
+        measure of how well this creature has done
+    genes:
+        this individual's genes, which are the moves it will take
+    """
     def __init__(self, gene_length):
-        """Create a creature with random genes.
+        """Initializes a creature with random genes.
         """
         self.fitness = 0
         self.genes = []
 
+        # Runs through the number of movements and assigns a random one
         for i in range(gene_length):
             self.genes.append(random.choice(DIRECTIONS))
 
 
-def get_fitness(creature):
-    return creature.fitness
-
-
 def crossover(parent1, parent2, gene_length):
-    """Returns a child created from two parents.
+    """Returns a child created from two parents by crossing over their genes.
     """
-    new_child = Creature(gene_length)
+    child = Creature(gene_length)
 
     # Assigns parents' (or random) genes to the new child
     for i in range(len(parent1.genes)):
-        random_num = random.random()
-        if random_num <= MUTATION_THRESHOLD:
-            new_child.genes[i] = random.choice(DIRECTIONS)
-        elif random_num <= CROSSOVER_THRESHOLD:
-            new_child.genes[i] = parent1.genes[i]
+        rand = random.random()
+        if rand <= MUTATION_THRESHOLD:
+            child.genes[i] = random.choice(DIRECTIONS)
+        elif rand <= CROSSOVER_THRESHOLD:
+            child.genes[i] = parent1.genes[i]
         else:
-            new_child.genes[i] = parent2.genes[i]
+            child.genes[i] = parent2.genes[i]
 
-    return new_child
+    return child
