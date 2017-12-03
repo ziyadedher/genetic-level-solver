@@ -4,9 +4,10 @@ They eventually learn how to find food by a genetic algorithm which we learned o
 
 # Install
 Prerequesites for this project include:
-`MatPlotLib`
-`PyGame`
-`TKinter`
+
+`matplotlib`
+`pygame`
+`tkinter`
 
 # Running
 Run the file `start.py` with `python >= 3.5`. There will be instructions within related to creating a world grid, and running a simulation.
