@@ -2,14 +2,14 @@ import pygame
 import simulation
 import pickle
 import sys
-
+import os
 if len(sys.argv) != 2:
     print("You fool! You must invoke this command as such:")
-    print("python level_creator.py FILE.pickle")
+    print("python level_creator.py FILE")
     sys.exit()
 
 def updated_level(grid):
-    return simulation.Level(grid)
+    return simulation.Level(grid, points=False)
 
 
 pwidth, pheight = simulation.SCREEN_SIZE
@@ -45,6 +45,12 @@ while going:
     level.draw(screen)
     pygame.display.update()
 
-file = open(sys.argv[1], "wb+")
+
+directory = "levels"
+file_name = sys.argv[1]
+file_path = directory + "/" + file_name
+if not os.path.exists(directory):
+    os.mkdir(directory)
+file = open(file_path, "wb+")
 pickle.dump(grid, file)
 file.close()
