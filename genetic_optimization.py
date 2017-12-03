@@ -3,14 +3,11 @@ import random
 # Directions that a creature can move
 DIRECTIONS = ('U', 'R', 'D', 'L')
 
-# Length of a creature's genes (directions)
-GENE_LENGTH = 100
-
 # Percentage of creatures to be used to create the next generation
 TOP_CREATURES_PERCENTAGE = 0.20
 
 # Threshold which determines if a random gene should be created for a child
-MUTATION_THRESHOLD = 0.08
+MUTATION_THRESHOLD = 0.02
 
 # Threshold which determines which parent a child should take a gene from
 # (equal chance for both parents)
@@ -19,14 +16,15 @@ CROSSOVER_THRESHOLD = (1 + MUTATION_THRESHOLD) / 2
 
 class Population:
 
-    def __init__(self, num_creatures=1):
+    def __init__(self, gene_length, num_creatures):
         """Creates a list of <num_creatures> creatures with randomly
         generated genes.
         """
         self.pop = []
+        self.gene_length = gene_length
 
         for i in range(num_creatures):
-            self.pop.append(Creature())
+            self.pop.append(Creature(self.gene_length))
 
     def create_new_generation(self):
         """ Creates a new generation based on favourable characteristics
@@ -45,7 +43,8 @@ class Population:
         self.pop = new_pop
 
     def calculate_average_fitness(self):
-        """Calculates the average fitness of a generation of creatures"""
+        """Calculates the average fitness of a generation of creatures.
+        """
         avg_fitness = 0
         for creature in self.pop:
             avg_fitness += creature.fitness
@@ -55,31 +54,23 @@ class Population:
 
 class Creature:
 
-    def __init__(self):
-        """Create a creature with random genes."""
+    def __init__(self, gene_length):
+        """Create a creature with random genes.
+        """
         self.fitness = 0
         self.genes = []
 
-        for i in range(GENE_LENGTH):
+        for i in range(gene_length):
             self.genes.append(random.choice(DIRECTIONS))
 
 
 def get_fitness(creature):
     return creature.fitness
 
-# def find_fittest(pop):
-#     """Returns the fittest creature in a given population."""
-#     fittest = pop[0]
-#
-#     for creature in pop:
-#         if creature.fitness > fittest.fitness:
-#             fittest = creature
-#
-#     return fittest
-
 
 def crossover(parent1, parent2):
-    """Returns a child created from two parents."""
+    """Returns a child created from two parents.
+    """
     new_child = Creature()
 
     # Assigns parents' (or random) genes to the new child
