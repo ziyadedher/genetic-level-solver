@@ -153,6 +153,7 @@ class Simulation:
         plt.xlabel("Generation")
         plt.ylabel("Fitness")
         plt.title("Average Fitness over Generations")
+        plt.grid()
         plt.show()
 
 
