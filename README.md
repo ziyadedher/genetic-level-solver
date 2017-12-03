@@ -12,7 +12,10 @@ Prerequesites for this project include:
 Run the file `start.py` with `python >= 3.5`. There will be instructions within related to creating a world grid, and running a simulation.
 
 # Credits
-Jack McKinney
-Ziyad Edher
 Eliano Anile
+
+Jack McKinney
+
 Lucas Rae
+
+Ziyad Edher

@@ -2,6 +2,7 @@
 """
 
 import os
+import sys
 import time
 import random
 import pickle
@@ -31,6 +32,12 @@ BLACK = (0, 0, 0)
 COLORS = [BLACK, WHITE, GREEN]
 
 
+class EndSimulation(Exception):
+    """Raised when the simulation is ended prematurely.
+    """
+    pass
+
+
 class Simulation:
     """Controls the simulation's execution and physics.
 
@@ -44,15 +51,19 @@ class Simulation:
     def __init__(self):
         """Initalizes this simulation along with physics and display.
         """
+        # Ask for a level
+        level = self.ask_level()
+        if level == []:
+            points = self.ask_points()
+
         # Initializes pygame display
         pygame.init()
         self.display = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption(SCREEN_TITLE)
 
         # Initializes the level
-        level = self.ask_level()
         if level == []:
-            self.level = Level(points=True)
+            self.level = Level(points=points)
         else:
             self.level = Level(level)
         self.level.draw(self.display)
@@ -64,17 +75,32 @@ class Simulation:
         level = []
 
         if os.path.exists(path):
-            os.listdir(path)
-            level = input("Enter a file name of the above, or hit enter to generate.")
+            for item in os.listdir(path):
+                print(item)
+            level = input("Enter a file name of the above, " +
+                          "or hit enter to generate: ")
+
+            if level == "":
+                return []
         else:
-            input("No levels found. Press enter to generate.")
+            input("No levels found. Press enter to generate. ")
             return []
 
         if not os.path.exists(path + level):
-            input("That is not a level. Press enter to generate.")
+            input("That is not a level. Press enter to generate. ")
             return []
 
         return pickle.load(open(path + level, "rb"))
+
+    def ask_points(self):
+        """Asks if points should be randomly placed.
+
+        Returns False if no, otherwise True.
+        """
+        ans = input("Randomly generate points? [y/n] ")
+        if ans.lower() == "n":
+            return False
+        return True
 
     def start(self, generations, num_creatures, movements, draw_step=1):
         """Starts the simulation and
@@ -91,7 +117,12 @@ class Simulation:
             creatures = [Creature(self.level) for _ in range(len(pop))]
 
             for step_i in range(movements):
-                self.step(creatures, pop, step_i, draw)
+                try:
+                    self.step(creatures, pop, step_i, draw)
+                except EndSimulation:
+                    pygame.quit()
+                    self.draw_graph(fitness_levels)
+                    return
             for j in range(len(creatures)):
                 pop[j].fitness = creatures[j].points
 
@@ -109,7 +140,10 @@ class Simulation:
             creatures[i].move(pop[i].genes[step_number])
             if draw:
                 creatures[i].draw(self.display)
-        pygame.event.get()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                raise EndSimulation
         pygame.display.update()
 
     def draw_graph(self, fitness_levels):
@@ -118,6 +152,8 @@ class Simulation:
         plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
         plt.xlabel("Generation")
         plt.ylabel("Fitness")
+        plt.title("Average Fitness over Generations")
+        plt.grid()
         plt.show()
 
 
@@ -143,12 +179,22 @@ class Level:
         """
         # Generates the grid
         if blueprint is None:
-            self._grid = self._generate_boxed_grid()
+            self._grid = self._generate_empty_grid()
         else:
             self._grid = blueprint
 
         if points:
             self.add_points()
+
+    def _generate_empty_grid(self):
+        """Generates an empty grid.
+        """
+        # Generates the grid and returns it
+        grid = []
+        for x in range(NUM_COLUMNS):
+            column = [0] * NUM_ROWS
+            grid.append(column)
+        return grid
 
     def _generate_boxed_grid(self):
         """Generates a grid with walls only at the sides.
@@ -166,7 +212,7 @@ class Level:
     def add_points(self):
         """Randomly scatters points across the empty tiles of the level.
         """
-        chance = 0.03
+        chance = 0.025
 
         for x in range(len(self._grid)):
             for y in range(len(self._grid[x])):
@@ -268,8 +314,3 @@ class Creature:
 
         # Draws the rectangle
         pygame.draw.rect(display, color, tile_rect)
-
-
-if __name__ == '__main__':
-    sim = Simulation()
-    sim.start(20, 100, 200, draw_step=10)
