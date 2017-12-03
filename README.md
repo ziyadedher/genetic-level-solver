@@ -17,6 +17,6 @@ Eliano Anile
 
 Jack McKinney
 
-Lucas Rae
+Lucas Rea
 
 Ziyad Edher
