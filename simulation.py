@@ -3,7 +3,10 @@
 
 import time
 import random
+import pickle
 import pygame
+
+import matplotlib.pyplot as plt
 
 import genetic_optimization as genetics
 
@@ -49,28 +52,45 @@ class Simulation:
         self.level = Level()
         self.level.draw(self.display)
 
-    def start(self, generations, num_creatures):
+    def start(self, generations, num_creatures, draw_step):
         """Starts the simulation and
         runs for <generations> number of generations with
         <num_creatures> number of creatures.
+        Draws the generation every <draw_step>.
         """
+        fitness_levels = []
         populations = genetics.Population(num_creatures)
+
         for i in range(generations):
-            population = populations.population
-            creatures = [Creature(self.level) for _ in range(len(population))]
+            draw = (i % draw_step) == 0
+            pop = populations.pop
+            creatures = [Creature(self.level) for _ in range(len(pop))]
+
             for step_i in range(genetics.GENE_LENGTH):
-                self.step(creatures, population, step_i)
+                self.step(creatures, pop, step_i, draw)
             for j in range(len(creatures)):
-                population[j].fitness = creatures[j].points
+                pop[j].fitness = creatures[j].points
+
+            fitness_levels.append(populations.calculate_average_fitness())
             populations.create_new_generation()
 
-    def step(self, creatures, population, step_number):
+        self.draw_graph(fitness_levels)
+
+    def draw_graph(self, fitness_levels):
+        """Draws the graph of fitness versus generation.
+        """
+        plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
+        plt.show()
+
+    def step(self, creatures, pop, step_number, draw):
         """Runs a step in the simulation.
         """
-        self.level.draw(self.display)
+        if draw:
+            self.level.draw(self.display)
         for i in range(len(creatures)):
-            creatures[i].move(population[i].genes[step_number])
-            creatures[i].draw(self.display)
+            creatures[i].move(pop[i].genes[step_number])
+            if draw:
+                creatures[i].draw(self.display)
         pygame.display.update()
 
 
@@ -165,14 +185,18 @@ class Creature:
     #   x-coordinate of the creature
     # _y:
     #   y-coordinate of the creature
+    # _visited:
+    #   list of tuples of visited points
 
     def __init__(self, level):
         """Initializes the creature in the given level.
         """
         self.level = level
         self.points = 0
+
         self._x = NUM_COLUMNS // 2
         self._y = NUM_ROWS // 2
+        self._visited = [(self._x, self._y)]
 
     def _try_move(self, displacement):
         """Try to move a certain displacement, update accordingly.
@@ -184,7 +208,10 @@ class Creature:
             self._x = move_to[0]
             self._y = move_to[1]
         if status == 2:
-            self.points += 1
+            pos = (self._x, self._y)
+            if pos not in self._visited:
+                self._visited.append(pos)
+                self.points += 1
 
     def move(self, direction):
         """Moves the creature in the given direction (U, R, D, or L).
@@ -215,4 +242,4 @@ class Creature:
 
 if __name__ == '__main__':
     sim = Simulation()
-    sim.start(50, 10)
+    sim.start(250, 100, 10)
