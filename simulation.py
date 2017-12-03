@@ -150,6 +150,9 @@ class Simulation:
         """Draws the graph of fitness versus generation.
         """
         plt.plot(range(len(fitness_levels)), fitness_levels, 'ro')
+        plt.xlabel("Generation")
+        plt.ylabel("Fitness")
+        plt.title("Average Fitness over Generations")
         plt.show()
 
 
@@ -310,8 +313,3 @@ class Creature:
 
         # Draws the rectangle
         pygame.draw.rect(display, color, tile_rect)
-
-
-if __name__ == '__main__':
-    sim = Simulation()
-    sim.start(250, 100, 200, draw_step=10)
