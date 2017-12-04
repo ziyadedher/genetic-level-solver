@@ -273,7 +273,7 @@ class Creature:
                 self.points += 1
 
     def move(self, direction):
-        """Moves the creature in the given direction (U, R, D, or L).
+        """Moves the creature in the given direction.
         """
         if direction == 'U':
             self._try_move((0, -1))
@@ -283,6 +283,14 @@ class Creature:
             self._try_move((0, 1))
         elif direction == 'L':
             self._try_move((-1, 0))
+        elif direction == 'UR':
+            self._try_move((-1, 1))
+        elif direction == 'UL':
+            self._try_move((-1, -1))
+        elif direction == 'DR':
+            self._try_move((1, 1))
+        elif direction == 'DL':
+            self._try_move((1, -1))
 
     def draw(self, display):
         """Draws this creature to the given PyGame display.

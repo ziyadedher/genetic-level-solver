@@ -7,7 +7,7 @@ import random
 
 
 # Directions that a creature can move
-DIRECTIONS = ('U', 'R', 'D', 'L')
+DIRECTIONS = ('U', 'R', 'D', 'L', 'UR', 'UL', 'DR', 'DL')
 
 # Percentage of creatures to be used to create the next generation
 TOP_CREATURES_PERCENTAGE = 0.20
