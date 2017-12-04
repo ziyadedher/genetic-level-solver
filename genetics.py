@@ -7,7 +7,8 @@ import random
 
 
 # Directions that a creature can move
-DIRECTIONS = ('U', 'R', 'D', 'L', 'UR', 'UL', 'DR', 'DL')
+# Structured such that DIRECTIONS[i] is reversed by DIRECTIONS[-(i + 1)]
+DIRECTIONS = ('U', 'R', 'DL', 'DR', 'UL', 'UR', 'L', 'D')
 
 # Percentage of creatures to be used to create the next generation
 TOP_CREATURES_PERCENTAGE = 0.20
@@ -100,9 +101,29 @@ class Individual:
         self.fitness = 0
         self.genes = []
 
-        # Runs through the number of movements and assigns a random one
-        for _ in range(gene_length):
-            self.genes.append(random.choice(DIRECTIONS))
+        # Assigns genes
+        self.randomly_assign_genes(gene_length)
+
+    def randomly_assign_genes(self, gene_length):
+        """Randomly, but intelligently, assigns genes to the individual.
+        """
+        # Runs through the number of movements
+        # and intelligently assigns a random one
+        counter = 0
+        past_move = ""
+        while counter < gene_length:
+            # Chooses a random move index
+            rand = random.randint(0, len(DIRECTIONS) - 1)
+
+            # Makes sure the move does not just reverse the previous one
+            check_move = DIRECTIONS[-(rand + 1)]
+            if check_move == past_move:
+                continue
+
+            # Inserts the move
+            past_move = DIRECTIONS[rand]
+            self.genes.append(past_move)
+            counter += 1
 
     def gene_frequency(self):
         """Returns a dictionary with each gene type and the amount
