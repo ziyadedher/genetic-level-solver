@@ -7,12 +7,18 @@ def prompt(mess, default=None):
     """
     # Asks until a valid input is given.
     while True:
+        # Asks for input
         out = input(mess)
-        # Returns default if it is set and no answer was given
+
+        # Returns <default> if it is set and no input was provided
         if default is not None and out == "":
             return default
+
+        # Parses input
         try:
             out = int(out)
+            if out < 1:
+                raise ValueError
         except ValueError:
             print("Please enter a valid input.")
             continue

@@ -15,6 +15,7 @@ def main():
     """Runs the level creator.
     """
     # Displays instructions
+    print("")
     print("Left click on the screen to draw and right click to erase.")
     print("Left arrow key will make you draw points (green), " +
           "and right will make you draw walls (white).")
@@ -68,7 +69,13 @@ def main():
     if not os.path.exists(simulation.LEVEL_PATH):
         os.mkdir(simulation.LEVEL_PATH)
 
-    # Asks for a name and saves
-    name = input("What would you like to call this level?\n> ")
+    # Asks for a name
+    prompt = "What would you like to call this level?\n> "
+    name = input(prompt)
+    # Makes sure the name is valid
+    while name == "" or any(c in name for c in './'):
+        print("That is not a valid name.")
+        name = input(prompt)
+    # Saves
     with open(simulation.LEVEL_PATH + name, "wb+") as save:
         level.dump_grid(save)
