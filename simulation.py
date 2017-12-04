@@ -5,6 +5,7 @@ import os
 import random
 import pickle
 import pygame
+import pygame.gfxdraw
 
 import matplotlib.pyplot as plt
 
@@ -195,22 +196,14 @@ class Level:
                 # Calculates the left and top
                 left = i * TILE_SIZE
                 top = j * TILE_SIZE
-
                 # Gets the tile index
                 index = self._grid[i][j]
 
-                # Tile is a wall
-                if index == 1:
+                # Draws the tile if it is not empty
+                if index == 1 or index == 2:
                     # Creates the rectangle and draws it
                     tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
-                    pygame.draw.rect(display, COLORS[index], tile_rect)
-
-                # Tile is a point
-                if index == 2:
-                    # Calculates position and draws it
-                    offset = TILE_SIZE // 2
-                    pos = (left + offset, top + offset)
-                    pygame.draw.circle(display, COLORS[index], pos, offset)
+                    pygame.gfxdraw.box(display, tile_rect, COLORS[index])
 
     def get_tile_at(self, position):
         """Gets the tile at the given position.
