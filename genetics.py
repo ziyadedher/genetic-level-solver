@@ -11,7 +11,7 @@ import random
 DIRECTIONS = ('U', 'R', 'DL', 'DR', 'UL', 'UR', 'L', 'D')
 
 # Percentage of creatures to be used to create the next generation
-TOP_CREATURES_PERCENTAGE = 0.20
+TOP_CREATURES_PERCENTAGE = 0.15
 
 # Threshold which determines if a random gene should be created for a child
 MUTATION_THRESHOLD = 0.02
@@ -50,11 +50,13 @@ class PopulationController:
         tournament = sorted_pop[:int(len(self.pop) * TOP_CREATURES_PERCENTAGE)]
 
         # Empties the population to create a new set
-        self.pop = []
+        # and adds the top-preformer to the population
+        self.pop = [sorted_pop[0]]
 
         # Creates a new set of individuals by randomly choosing
         # two parents from the tournament set and crossing them
-        for _ in range(len(sorted_pop)):
+        for _ in range(len(sorted_pop) - 1):
+            # Crosses over to create a child and appends it to the population
             child = crossover(random.choice(tournament),
                               random.choice(tournament),
                               self.gene_length)

@@ -31,7 +31,6 @@ BLACK = (0, 0, 0)
 
 # Drawing constants
 COLORS = [BLACK, WHITE, GREEN]
-WIDTH = [0, 0, 1]
 
 
 class EndSimulation(Exception):
@@ -197,10 +196,9 @@ class Level:
                 # Creates the rectangle and chooses the color
                 tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
                 color = COLORS[self._grid[i][j]]
-                width = WIDTH[self._grid[i][j]]
 
                 # Draws the rectangle
-                pygame.draw.rect(display, color, tile_rect, width)
+                pygame.draw.rect(display, color, tile_rect)
 
     def get_tile_at(self, position):
         """Gets the tile at the given position.
@@ -338,9 +336,6 @@ def ask_level():
     Returns an empty array if the level is randomly generated,
     returns an 2-d array if with the level if it is chosen.
     """
-    # Stores the level
-    level = []
-
     # Asks the user if they want to load a level
     ans = input("Load a preexisting level? [y/n] ")
     if ans.lower() == 'n':
