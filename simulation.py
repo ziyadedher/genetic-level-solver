@@ -186,6 +186,9 @@ class Level:
     def draw(self, display):
         """Draws this level to the given PyGame display.
         """
+        # Sets the background
+        display.fill(COLORS[0])
+
         # Draws each tile in the grid
         for i in range(len(self._grid)):
             for j in range(len(self._grid[i])):
@@ -193,12 +196,21 @@ class Level:
                 left = i * TILE_SIZE
                 top = j * TILE_SIZE
 
-                # Creates the rectangle and chooses the color
-                tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
-                color = COLORS[self._grid[i][j]]
+                # Gets the tile index
+                index = self._grid[i][j]
 
-                # Draws the rectangle
-                pygame.draw.rect(display, color, tile_rect)
+                # Tile is a wall
+                if index == 1:
+                    # Creates the rectangle and draws it
+                    tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
+                    pygame.draw.rect(display, COLORS[index], tile_rect)
+
+                # Tile is a point
+                if index == 2:
+                    # Calculates position and draws it
+                    offset = TILE_SIZE // 2
+                    pos = (left + offset, top + offset)
+                    pygame.draw.circle(display, COLORS[index], pos, offset)
 
     def get_tile_at(self, position):
         """Gets the tile at the given position.
