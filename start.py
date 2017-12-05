@@ -29,6 +29,7 @@ def prompt(mess: str, default: int = None) -> int:
 def main() -> None:
     """Runs the main menu.
     """
+
     # Displays instructions
     print("Welcome to the Genetic Level Solver!")
     print("[1] Level Creator")
@@ -52,10 +53,12 @@ def main() -> None:
         num = prompt("Number of Creatures (default: 100): ", 100)
         movs = prompt("Number of Moves per Creature (default: 100): ", 100)
         step = prompt("Evolution Step (default: 10): ", 10)
+        interval = prompt("Movement interval in ms (default: 0): ", 0)
 
         # Starts the simulation with the given parameters
         sim = simulation.Simulation()
-        sim.start(gens, num, movs, draw_step=step)
+        sim.settings(draw_step=step, interval=interval)
+        sim.start(gens, num, movs)
     elif ans == 1:
         # Imports the level creator which auto-starts
         import level_creator

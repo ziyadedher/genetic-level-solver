@@ -2,6 +2,7 @@
 """
 
 import os
+import time
 import random
 import pickle
 
@@ -51,9 +52,20 @@ class Simulation:
         PyGame display
     level:
         current Level
+    step_num:
+        current step number in the simulation
     """
     display: pygame.Surface
     level: 'Level'
+    step_num: int
+
+    # === Private Attributes ===
+    # _draw_step:
+    #   draws the generation's progress every this many generations
+    # _interval:
+    #   waits this long after each drawing in milliseconds
+    _draw_step: int
+    _interval: int
 
     def __init__(self) -> None:
         """Initalizes this simulation along with physics and display.
@@ -61,6 +73,11 @@ class Simulation:
         # Ask for a level and if to generate random points
         level = ask_level()
         chance = ask_points()
+
+        # Initializes basic variables
+        self.step_num = 0
+        self._draw_step = 0
+        self._interval = 0
 
         # Initializes pygame display with size and title
         pygame.init()
@@ -73,14 +90,23 @@ class Simulation:
         else:
             self.level = Level(blueprint=level, chance=chance)
         self.level.draw(self.display)
+        pygame.display.update()
+
+    def settings(self, draw_step: int = 1, interval: int = 0) -> None:
+        """Update drawing settings.
+
+        Draws the generation every <draw_step> generations.
+        Waits <interval> milliseconds after every draw.
+        """
+        self._draw_step = draw_step
+        self._interval = interval
 
     def start(self, generations: int, num_creatures: int,
-              movements: int, draw_step: int = 1) -> None:
+              movements: int) -> None:
         """Starts the simulation and
         runs for <generations> number of generations with
         <num_creatures> number of creatures
         that move <movements> times before dying.
-        Draws the generation every <draw_step>.
         """
         # Stores fitness levels for statistics
         fitness_levels = []
@@ -90,22 +116,32 @@ class Simulation:
 
         # Runs through the amount of generations needed to simulate
         for i in range(generations):
+            # Resets step number to zero at the start
+            self.step_num = 0
+
             # Sets the draw to True only on every <draw_step> generation
-            draw = (i % draw_step) == 0
+            if self._draw_step != 0:
+                draw = (i % self._draw_step) == 0
+            else:
+                draw = False
 
             # Gets the current population and creates creatures for each item
             pop = populations.pop
             creatures = [Creature(self.level) for _ in range(len(pop))]
 
             # Runs through each movement required
-            for step_i in range(movements):
+            while self.step_num < movements:
                 # Tries to step, ends if a EndSimulation exception was raised
                 try:
-                    self.step(creatures, pop, step_i, draw)
+                    self.step(creatures, pop)
                 except EndSimulation:
                     pygame.quit()
                     draw_graph(fitness_levels)
                     return
+
+                # Draws everything if draw is set to true
+                if draw:
+                    self.draw(creatures, self._interval)
 
             # Updates each individual's fitness based off the number of points
             # they gathered in that generation
@@ -120,31 +156,38 @@ class Simulation:
         # Draws statistics
         draw_graph(fitness_levels)
 
-    def step(self, creatures: List['Creature'], pop: List[genetics.Individual],
-             step_number: int, draw: bool) -> None:
+    def step(self, creatures: List['Creature'],
+             pop: List[genetics.Individual]) -> None:
         """Runs a step in the simulation.
 
-        Updates each creature in <creatures> and only draws if <draw> is True.
+        Updates each creature in <creatures>.
         """
-        # Draws the level if required
-        if draw:
-            self.level.draw(self.display)
-
         # Runs through each creature and moves accordingly
         for i, creature in enumerate(creatures):
-            creature.move(pop[i].genes[step_number])
-            # Draws the creature if required
-            if draw:
-                creature.draw(self.display)
+            creature.move(pop[i].genes[self.step_num])
 
         # Close event handler, raises an EndSimulation exception
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 raise EndSimulation
 
-        # Updates the display to show changes if required
-        if draw:
-            pygame.display.update()
+        # Increments step
+        self.step_num += 1
+
+    def draw(self, creatures: List['Creature'], interval: int = 0) -> None:
+        """Draws the level and all the passed in creatures,
+        then waits <interval> milliseconds.
+        """
+        # Draws the level
+        self.level.draw(self.display)
+
+        # Draws the creatures
+        for creature in creatures:
+            creature.draw(self.display)
+
+        # Updates the display and waits
+        pygame.display.update()
+        time.sleep(interval / 1000)
 
 
 class Level:
@@ -241,6 +284,9 @@ class Creature:
     points:
         number of points this creature has collected
     """
+    level: 'Level'
+    points: int
+
     # === Private Attributes ===
     # _x_coord:
     #   x-coordinate of the creature
@@ -248,9 +294,6 @@ class Creature:
     #   y-coordinate of the creature
     # _visited:
     #   list of tuples of visited points
-    level: 'Level'
-    points: int
-
     _x_coord: int
     _y_coord: int
     _visited: List[Tuple[int, int]]
