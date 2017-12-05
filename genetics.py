@@ -2,8 +2,9 @@
 This is what makes things happen.
 """
 
-
 import random
+
+from typing import List, Tuple, Dict
 
 
 # Directions that a creature can move
@@ -30,7 +31,10 @@ class PopulationController:
     gene_length:
         length of the genes, which is the amount of moves
     """
-    def __init__(self, gene_length, num_individuals):
+    pop: List['Individual']
+    gene_length: int
+
+    def __init__(self, gene_length: int, num_individuals: int) -> None:
         """Creates a list of <num_individuals> creatures with randomly
         generated genes of length <gene_length>.
         """
@@ -41,7 +45,7 @@ class PopulationController:
         for _ in range(num_individuals):
             self.pop.append(Individual(self.gene_length))
 
-    def create_new_generation(self):
+    def create_new_generation(self) -> None:
         """ Creates a new generation based on favourable characteristics
         of creatures.
         """
@@ -62,7 +66,7 @@ class PopulationController:
                               self.gene_length)
             self.pop.append(child)
 
-    def calculate_fitness_statistics(self):
+    def calculate_fitness_statistics(self) -> Tuple[float, float, float]:
         """Calculates fitness statistics of the current population.
 
         Returns a tuple of the maximum, minimum, and average fitness of the
@@ -97,7 +101,10 @@ class Individual:
     genes:
         this individual's genes, which are the moves it will take
     """
-    def __init__(self, gene_length):
+    fitness: float
+    genes: List[str]
+
+    def __init__(self, gene_length: int) -> None:
         """Initializes a creature with random genes.
         """
         self.fitness = 0
@@ -106,7 +113,7 @@ class Individual:
         # Assigns genes
         self.randomly_assign_genes(gene_length)
 
-    def randomly_assign_genes(self, gene_length):
+    def randomly_assign_genes(self, gene_length: int) -> None:
         """Randomly, but intelligently, assigns genes to the individual.
         """
         # Runs through the number of movements
@@ -127,7 +134,7 @@ class Individual:
             self.genes.append(past_move)
             counter += 1
 
-    def gene_frequency(self):
+    def gene_frequency(self) -> Dict[str, int]:
         """Returns a dictionary with each gene type and the amount
         of times it shows up.
         """
@@ -137,7 +144,7 @@ class Individual:
                 freq["gene"] = 0
             freq["gene"] += 1
 
-    def mutate(self, mutation_rate):
+    def mutate(self, mutation_rate: float) -> None:
         """Mutates this individual based on the mutation rate.
         """
         rand = random.random()
@@ -146,7 +153,8 @@ class Individual:
                 self.genes[i] = random.choice(DIRECTIONS)
 
 
-def crossover(parent1, parent2, gene_length):
+def crossover(parent1: 'Individual', parent2: 'Individual',
+              gene_length: int) -> 'Individual':
     """Crosses over the two parents to create a child, also includes mutations.
 
     Returns the evolved child.

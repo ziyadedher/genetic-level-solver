@@ -2,7 +2,7 @@
 """
 
 
-def prompt(mess, default=None):
+def prompt(mess: str, default: int = None) -> int:
     """Asks a user for input, with error handling.
     """
     # Asks until a valid input is given.
@@ -26,7 +26,7 @@ def prompt(mess, default=None):
             return out
 
 
-def main():
+def main() -> None:
     """Runs the main menu.
     """
     # Displays instructions

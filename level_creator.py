@@ -11,7 +11,7 @@ import simulation
 SCREEN_TITLE = "Level Creator"
 
 
-def main():
+def main() -> None:
     """Runs the level creator.
     """
     # Displays instructions

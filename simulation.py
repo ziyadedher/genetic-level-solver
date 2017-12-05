@@ -4,6 +4,9 @@
 import os
 import random
 import pickle
+
+from typing import List, Tuple, BinaryIO
+
 import pygame
 import pygame.gfxdraw
 
@@ -49,8 +52,10 @@ class Simulation:
     level:
         current Level
     """
+    display: pygame.Surface
+    level: 'Level'
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initalizes this simulation along with physics and display.
         """
         # Ask for a level and if to generate random points
@@ -69,7 +74,8 @@ class Simulation:
             self.level = Level(blueprint=level, chance=chance)
         self.level.draw(self.display)
 
-    def start(self, generations, num_creatures, movements, draw_step=1):
+    def start(self, generations: int, num_creatures: int,
+              movements: int, draw_step: int = 1) -> None:
         """Starts the simulation and
         runs for <generations> number of generations with
         <num_creatures> number of creatures
@@ -114,7 +120,8 @@ class Simulation:
         # Draws statistics
         draw_graph(fitness_levels)
 
-    def step(self, creatures, pop, step_number, draw):
+    def step(self, creatures: List['Creature'], pop: List[genetics.Individual],
+             step_number: int, draw: bool) -> None:
         """Runs a step in the simulation.
 
         Updates each creature in <creatures> and only draws if <draw> is True.
@@ -152,8 +159,10 @@ class Level:
     #       0: empty
     #       1: wall
     #       2: point
+    _grid: List[List[int]]
 
-    def __init__(self, blueprint=None, chance=0.025):
+    def __init__(self, blueprint: List[List[int]] = None,
+                 chance: float = 0.025) -> None:
         """Initializes this level with the given blueprint in the form of
         a list of columns where each column is a list of integers. Adds the
         points randomly depending on <chance>.
@@ -171,7 +180,7 @@ class Level:
         # Adds points if required
         self.add_points(chance)
 
-    def add_points(self, chance):
+    def add_points(self, chance: float) -> None:
         """Randomly scatters points across the empty tiles of the level
         at the rate of <chance>.
         """
@@ -184,7 +193,7 @@ class Level:
                     if random.random() < chance:
                         self._grid[i][j] = 2
 
-    def draw(self, display):
+    def draw(self, display: pygame.Surface) -> None:
         """Draws this level to the given PyGame display.
         """
         # Sets the background
@@ -205,19 +214,19 @@ class Level:
                     tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
                     pygame.gfxdraw.box(display, tile_rect, COLORS[index])
 
-    def get_tile_at(self, position):
+    def get_tile_at(self, position: Tuple[int, int]) -> int:
         """Gets the tile at the given position.
 
         Returns the integer representation.
         """
         return self._grid[position[0]][position[1]]
 
-    def set_tile_at(self, position, tile):
+    def set_tile_at(self, position: Tuple[int, int], tile: int) -> None:
         """Sets the tile at the given position to the integer representation.
         """
         self._grid[position[0]][position[1]] = tile
 
-    def dump_grid(self, save):
+    def dump_grid(self, save: BinaryIO) -> None:
         """Dumps the grid into a save file using Pickle.
         """
         pickle.dump(self._grid, save)
@@ -233,14 +242,20 @@ class Creature:
         number of points this creature has collected
     """
     # === Private Attributes ===
-    # _x:
+    # _x_coord:
     #   x-coordinate of the creature
-    # _y:
+    # _y_coord:
     #   y-coordinate of the creature
     # _visited:
     #   list of tuples of visited points
+    level: 'Level'
+    points: int
 
-    def __init__(self, level):
+    _x_coord: int
+    _y_coord: int
+    _visited: List[Tuple[int, int]]
+
+    def __init__(self, level: 'Level') -> None:
         """Initializes the creature in the given level.
         """
         # Initializes the level and the number of points
@@ -248,34 +263,34 @@ class Creature:
         self.points = 0
 
         # Sets the position to the middle and sets that to be a visited place
-        self._x = NUM_COLUMNS // 2
-        self._y = NUM_ROWS // 2
-        self._visited = [(self._x, self._y)]
+        self._x_coord = NUM_COLUMNS // 2
+        self._y_coord = NUM_ROWS // 2
+        self._visited = [(self._x_coord, self._y_coord)]
 
-    def _try_move(self, displacement):
+    def _try_move(self, displacement: Tuple[int, int]) -> None:
         """Try to move a certain displacement, update accordingly.
         """
         # Gets the move to position and loops the board if the end is hit
-        move_x = (self._x + displacement[0]) % NUM_COLUMNS
-        move_y = (self._y + displacement[1]) % NUM_ROWS
+        move_x = (self._x_coord + displacement[0]) % NUM_COLUMNS
+        move_y = (self._y_coord + displacement[1]) % NUM_ROWS
 
         # Gets the tile at the position to move to
         status = self.level.get_tile_at((move_x, move_y))
 
         # Moves there if it is not a wall
         if status != 1:
-            self._x = move_x
-            self._y = move_y
+            self._x_coord = move_x
+            self._y_coord = move_y
 
         # Collects the point if it is a point
         if status == 2:
-            pos = (self._x, self._y)
+            pos = (self._x_coord, self._y_coord)
             # Updates if this point has not been collected by this creature
             if pos not in self._visited:
                 self._visited.append(pos)
                 self.points += 1
 
-    def move(self, direction):
+    def move(self, direction: str) -> None:
         """Moves the creature in the given direction.
         """
         if direction == 'U':
@@ -295,12 +310,12 @@ class Creature:
         elif direction == 'DL':
             self._try_move((1, -1))
 
-    def draw(self, display):
+    def draw(self, display: pygame.Surface) -> None:
         """Draws this creature to the given PyGame display.
         """
         # Calculates the left and top
-        left = self._x * TILE_SIZE
-        top = self._y * TILE_SIZE
+        left = self._x_coord * TILE_SIZE
+        top = self._y_coord * TILE_SIZE
 
         # Creates the rectangle and chooses the color
         tile_rect = pygame.Rect(left, top, TILE_SIZE, TILE_SIZE)
@@ -310,7 +325,7 @@ class Creature:
         pygame.draw.rect(display, color, tile_rect)
 
 
-def _generate_empty_grid():
+def _generate_empty_grid() -> List[List[int]]:
     """Generates an empty grid.
     """
     # Generates the grid and returns it
@@ -321,7 +336,7 @@ def _generate_empty_grid():
     return grid
 
 
-def _generate_boxed_grid():
+def _generate_boxed_grid() -> List[List[int]]:
     """Generates a grid with walls only at the sides.
     """
     # Generates the grid and returns it
@@ -335,7 +350,7 @@ def _generate_boxed_grid():
     return grid
 
 
-def ask_level():
+def ask_level() -> List:
     """Asks for the level to load.
 
     Returns an empty array if the level is randomly generated,
@@ -371,7 +386,7 @@ def ask_level():
     return []
 
 
-def ask_points():
+def ask_points() -> float:
     """Asks if points should be randomly placed and the frequency if yes.
 
     Returns the frequency float.
@@ -399,7 +414,7 @@ def ask_points():
             return freq
 
 
-def draw_graph(fitness_levels):
+def draw_graph(fitness_levels: List[Tuple[float, float, float]]) -> None:
     """Draws the graph of fitness versus generation.
     """
     # Separates the statistics
