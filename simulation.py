@@ -466,15 +466,17 @@ def draw_graph(fitness_levels: List[Tuple[float, float, float]]) -> None:
     average_fitnesses = [stat[2] for stat in fitness_levels]
 
     # Plots average fitness versus generation
-    plt.plot(average_fitnesses, 'b',
-             maximum_fitnesses, 'g-',
-             minimum_fitnesses, 'r-')
+    plt.plot(maximum_fitnesses, 'g-', label="Maximum Fitness")
+    plt.plot(average_fitnesses, 'b', label="Average Fitness")
+    plt.plot(minimum_fitnesses, 'r-', label="Minimum Fitness")
 
     # Sets display labels
     plt.xlabel("Generation")
     plt.ylabel("Fitness")
     plt.title("Fitness Statistics")
     plt.grid()
+    plt.legend(bbox_to_anchor=(1.04, 1), loc="center left", borderaxespad=0)
+    plt.subplots_adjust(right=0.65)
 
     # Shows the plot
     plt.show()

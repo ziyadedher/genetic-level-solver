@@ -54,7 +54,7 @@ class PopulationController:
         tournament = sorted_pop[:int(len(self.pop) * TOP_CREATURES_PERCENTAGE)]
 
         # Empties the population to create a new set
-        # and adds the top-preformer to the population
+        # and adds the top-performer to the population
         self.pop = [sorted_pop[0]]
 
         # Creates a new set of individuals by randomly choosing
@@ -89,7 +89,7 @@ class PopulationController:
                 min_fit = fit
 
         # Returns the tuple as stated
-        return (max_fit, min_fit, tot_fit / len(self.pop))
+        return max_fit, min_fit, tot_fit / len(self.pop)
 
 
 class Individual:
@@ -134,29 +134,20 @@ class Individual:
             self.genes.append(past_move)
             counter += 1
 
-    def gene_frequency(self) -> Dict[str, int]:
-        """Returns a dictionary with each gene type and the amount
-        of times it shows up.
-        """
-        freq = {}
-        for gene in self.genes:
-            if gene not in freq:
-                freq["gene"] = 0
-            freq["gene"] += 1
-
-    def mutate(self, mutation_rate: float) -> None:
-        """Mutates this individual based on the mutation rate.
-        """
-        rand = random.random()
-        for i, _ in enumerate(self.genes):
-            if rand <= mutation_rate:
-                self.genes[i] = random.choice(DIRECTIONS)
+    # def gene_frequency(self) -> Dict[str, int]:
+    #     """Returns a dictionary with each gene type and the amount
+    #     of times it shows up.
+    #     """
+    #     freq = {}
+    #     for gene in self.genes:
+    #         if gene not in freq:
+    #             freq["gene"] = 0
+    #         freq["gene"] += 1
 
 
 def crossover(parent1: 'Individual', parent2: 'Individual',
               gene_length: int) -> 'Individual':
     """Crosses over the two parents to create a child, also includes mutations.
-
     Returns the evolved child.
     """
     child = Individual(gene_length)
@@ -165,7 +156,7 @@ def crossover(parent1: 'Individual', parent2: 'Individual',
     for i in range(len(parent1.genes)):
         rand = random.random()
         if rand <= MUTATION_THRESHOLD:
-            child.mutate(MUTATION_THRESHOLD)
+            child.genes[i] = random.choice(DIRECTIONS)
         elif rand <= CROSSOVER_THRESHOLD:
             child.genes[i] = parent1.genes[i]
         else:

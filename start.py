@@ -43,7 +43,12 @@ def main() -> None:
         print("Choose either 1, 2, or 3.")
         ans = prompt(message)
 
-    if ans == 2:
+    if ans == 1:
+        # Imports the level creator which auto-starts
+        import level_creator
+        level_creator.main()
+
+    elif ans == 2:
         # Imports the simulation
         import simulation
 
@@ -59,10 +64,6 @@ def main() -> None:
         sim = simulation.Simulation()
         sim.settings(draw_step=step, interval=interval)
         sim.start(gens, num, movs)
-    elif ans == 1:
-        # Imports the level creator which auto-starts
-        import level_creator
-        level_creator.main()
 
 
 if __name__ == '__main__':
